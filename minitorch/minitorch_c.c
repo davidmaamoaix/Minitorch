@@ -66,6 +66,12 @@ static int assignTensor(Tensor *self, Py_ssize_t i, PyObject *value) {
 	return 0;
 }
 
+static PyObject *toString(PyObject *self) {
+	PyObject *list = PySequence_List(self);
+
+	return PyObject_Str(list);
+}
+
 static PyMethodDef tensorMethodTable[] = {
 	{NULL, NULL, 0, NULL}
 };
@@ -88,11 +94,62 @@ static PyTypeObject TensorType = {
 	.tp_init = (initproc) initTensor,
 	.tp_dealloc = (destructor) deallocTensor,
 	.tp_methods = tensorMethodTable,
+	.tp_repr = (reprfunc) toString,
+	.tp_str = (reprfunc) toString,
 	.tp_as_sequence = &tensorSequence
 };
 
 
 /* tensor operations */
+
+static PyObject *makeAndFillTensor(PyObject *self, PyObject *args) {
+	int length;
+	double value;
+
+	if (!PyArg_ParseTuple(args, "id", &length, &value)) {
+		return NULL;
+	}
+
+	PyObject *argsT = Py_BuildValue("(i)", length);
+	Tensor *t = (Tensor *) PyObject_CallObject((PyObject *) &TensorType, argsT);
+
+	Py_DECREF(args);
+
+	for (int i = 0; i < t->length; ++i) {
+		t->values[i] = value;
+	}
+
+	return (PyObject *) t;
+}
+
+static PyObject *makeTensorFromList(PyObject *self, PyObject *args) {
+	PyObject *list;
+
+	if (!PyArg_ParseTuple(args, "O", &list)) {
+		return NULL;
+	}
+
+	if (!PyList_Check(list)) {
+		PyErr_SetString(
+			PyExc_TypeError,
+			"'values' must be a python list"
+		);
+		return NULL;
+	}
+
+	Py_ssize_t length = PyList_Size(list);
+
+	PyObject *argsT = Py_BuildValue("(i)", length);
+	Tensor *t = (Tensor *) PyObject_CallObject((PyObject *) &TensorType, argsT);
+
+	Py_DECREF(args);
+
+	for (int i = 0; i < length; ++i) {
+		t->values[i] = PyFloat_AsDouble(PyList_GET_ITEM(list, i));
+	}
+
+	return (PyObject *) t;
+}
 
 static PyObject *addNum(PyObject *self, PyObject *args) {
 	double a, b;
@@ -108,7 +165,24 @@ static PyObject *addNum(PyObject *self, PyObject *args) {
 /* module setup */
 
 static PyMethodDef methodTable[] = {
-	{"_add_num", addNum, METH_VARARGS, "Adds 2 nums"},
+	{
+		"_add_num",
+		addNum,
+		METH_VARARGS,
+		"Adds 2 nums"
+	},
+	{
+		"_make_and_fill_tensor",
+		makeAndFillTensor,
+		METH_VARARGS,
+		"Makes a new tensor and fill it with the given value"
+	},
+	{
+		"_make_tensor_from_list",
+		makeTensorFromList,
+		METH_VARARGS,
+		"Makes a new tensor from the given list"
+	},
 	{NULL, NULL, 0, NULL}
 };
 
