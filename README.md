@@ -11,3 +11,6 @@
 ```
 python run_tests.py
 ```
+
+## Note
+This repo does not exactly follow the Minitorch tutorial, as part of it is implemented in C to make it a fast boi.
