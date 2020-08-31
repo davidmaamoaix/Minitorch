@@ -1,4 +1,4 @@
-from .tensor import *
+from .tensor import Tensor
 
 from .module import *  # noqa: F401,F403
 from .operators import *  # noqa: F401,F403

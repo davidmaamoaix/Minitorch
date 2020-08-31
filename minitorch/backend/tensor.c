@@ -85,11 +85,11 @@ static PySequenceMethods tensorSequence = {
 static PyTypeObject TensorType = {
 	PyVarObject_HEAD_INIT(NULL, 0)
 
-	.tp_name = "minitorch.minitorch_c.Tensor",
+	.tp_name = "minitorch.backend.Tensor",
 	.tp_doc = "A cool tensor type",
 	.tp_basicsize = sizeof(Tensor),
 	.tp_itemsize = 0,
-	.tp_flags = Py_TPFLAGS_DEFAULT,
+	.tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
 	.tp_new = newTensor,
 	.tp_init = (initproc) initTensor,
 	.tp_dealloc = (destructor) deallocTensor,
@@ -151,6 +151,19 @@ static PyObject *makeTensorFromList(PyObject *self, PyObject *args) {
 	return (PyObject *) t;
 }
 
+/*static PyObject *makeTensorFromArray(PyObject *self, double *array, int length) {
+	PyObject *argsT = Py_BuildValue("(i)", length);
+	Tensor *t = (Tensor *) PyObject_CallObject((PyObject *) &TensorType, argsT);
+
+	Py_DECREF(argsT);
+
+	for (int i = 0; i < length; ++i) {
+		t->values[i] = array[i];
+	}
+
+	return (PyObject *) t;
+}*/
+
 static PyObject *addNum(PyObject *self, PyObject *args) {
 	double a, b;
 
@@ -188,13 +201,13 @@ static PyMethodDef methodTable[] = {
 
 static struct PyModuleDef minitorch = {
 	PyModuleDef_HEAD_INIT,
-	"minitorch_c",
+	"tensor",
 	"Submodule of minitorch that speeds stuff up",
 	-1,
 	methodTable
 };
 
-PyMODINIT_FUNC PyInit_minitorch_c() {
+PyMODINIT_FUNC PyInit_tensor() {
 	PyObject *module = PyModule_Create(&minitorch);
 
 	if (PyType_Ready(&TensorType) < 0) {

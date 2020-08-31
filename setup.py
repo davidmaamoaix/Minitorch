@@ -11,6 +11,9 @@ setup(
     tests_require=["pytest"],
 
     ext_modules=[
-    	Extension('minitorch.minitorch_c', sources=['minitorch/minitorch_c.c'])
+    	Extension(
+            'minitorch.backend.tensor',
+            sources=['minitorch/backend/tensor.c']
+        )
     ]
 )

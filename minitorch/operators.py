@@ -1,7 +1,5 @@
 import math
 
-import minitorch.minitorch_c as C
-
 
 def mul(x, y):
     ":math:`f(x, y) = x * y`"
