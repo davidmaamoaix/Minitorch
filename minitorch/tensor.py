@@ -16,8 +16,10 @@ class Tensor:
 				raise IndexError('Tuple index is not the same shape as tensor')
 
 			index = 0
+			multiplier = mul_all(self.shape)
 			for i in range(len(self.shape)):
-				index += mul_all(self.shape[i + 1:]) * k[i]
+				multiplier //= self.shape[i]
+				index += multiplier * k[i]
 
 			return self.values[index]
 
@@ -75,5 +77,5 @@ def fill_tensor(length, fill_value=0):
 
 	return T._make_and_fill_tensor(length, fill_value)
 
-t = Tensor([[1, 2], [3, 4], [5, 6]])
-print(t[0, 1])
+t = Tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+print(t[1, 2])
